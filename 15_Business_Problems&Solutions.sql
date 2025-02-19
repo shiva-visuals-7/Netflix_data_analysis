@@ -45,7 +45,7 @@ SELECT TOP 5
     COUNT(*) AS ContentCount
 FROM CountrySplit
 GROUP BY Countries
-ORDER BY ContentCount DESC;
+ORDER BY ContentCount DESC
 
 
 --5. Identify the longest movie
@@ -58,7 +58,7 @@ WHERE CAST(LEFT(Duration, CHARINDEX(' ', Duration) - 1) AS INT) = (
     SELECT MAX(CAST(LEFT(Duration, CHARINDEX(' ', Duration) - 1) AS INT))
     FROM netflix_titles
     WHERE Type = 'Movie'
-) AND Type = 'Movie';
+) AND Type = 'Movie'
 
 
 --6. Find content added in the last 5 years
@@ -93,7 +93,7 @@ where director like '%Rajiv Chilaka%'
 
 select show_id, type, title
 from netflix_titles
-WHERE CAST(LEFT(Duration, CHARINDEX(' ', Duration) - 1) AS INT) > 5;
+WHERE CAST(LEFT(Duration, CHARINDEX(' ', Duration) - 1) AS INT) > 5
 
 
 --9. Count the number of content items in each genre
