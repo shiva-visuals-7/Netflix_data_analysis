@@ -54,11 +54,26 @@ ORDER BY ContentCount DESC;
 
 --5. Identify the longest movie
 
-
+SELECT 
+    Title, 
+    Duration
+FROM netflix_titles
+WHERE CAST(LEFT(Duration, CHARINDEX(' ', Duration) - 1) AS INT) = (
+    SELECT MAX(CAST(LEFT(Duration, CHARINDEX(' ', Duration) - 1) AS INT))
+    FROM netflix_titles
+    WHERE Type = 'Movie'
+) AND Type = 'Movie';
 
 
 
 --6. Find content added in the last 5 years
+
+select * 
+from netflix_titles
+where date_added >= DATEADD(YEAR, -5, GETDATE())
+
+
+
 --7. Find all the movies/TV shows by director 'Rajiv Chilaka'!
 --8. List all TV shows with more than 5 seasons
 --9. Count the number of content items in each genre
