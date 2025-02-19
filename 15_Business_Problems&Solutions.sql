@@ -10,7 +10,6 @@ from netflix_titles
 group by type
 
 
-
 --2. Find the most common rating for movies and TV shows
 
 select type, rating 
@@ -24,13 +23,11 @@ group by type, rating
 where ranking=1
 
 
-
 --3. List all movies released in a specific year (e.g., 2020)
 
 select * 
 from netflix_titles 
 where type = 'Movie' and release_year = 2020
-
 
 
 --4. Find the top 5 countries with the most content on Netflix
@@ -51,7 +48,6 @@ GROUP BY Countries
 ORDER BY ContentCount DESC;
 
 
-
 --5. Identify the longest movie
 
 SELECT 
@@ -65,7 +61,6 @@ WHERE CAST(LEFT(Duration, CHARINDEX(' ', Duration) - 1) AS INT) = (
 ) AND Type = 'Movie';
 
 
-
 --6. Find content added in the last 5 years
 
 select * 
@@ -73,13 +68,68 @@ from netflix_titles
 where date_added >= DATEADD(YEAR, -5, GETDATE())
 
 
-
 --7. Find all the movies/TV shows by director 'Rajiv Chilaka'!
+
+--With commom table expressions (CTEs)
+with direction as(
+ SELECT
+        show_id, type, title, ---- Assuming each row has a unique Show_ID
+        LTRIM(RTRIM(value)) AS director -- Trim extra spaces from split values
+    FROM 
+        netflix_titles
+        CROSS APPLY STRING_SPLIT(director, ',') 
+)
+select * 
+from direction
+where director = 'Rajiv Chilaka'
+
+--OR with like function
+select * 
+from netflix_titles
+where director like '%Rajiv Chilaka%'
+
+
 --8. List all TV shows with more than 5 seasons
+
+select show_id, type, title
+from netflix_titles
+WHERE CAST(LEFT(Duration, CHARINDEX(' ', Duration) - 1) AS INT) > 5;
+
+
 --9. Count the number of content items in each genre
+
+WITH genresplit AS (
+    SELECT
+        show_id, type, title, -- Assuming each row has a unique Show_ID
+        LTRIM(RTRIM(value)) AS listings -- Trim extra spaces from split values
+    FROM 
+        netflix_titles
+        CROSS APPLY STRING_SPLIT(listed_in, ',') -- Split country column by commas
+)
+SELECT listings, 
+    COUNT(distinct show_id) AS ContentCount
+FROM genresplit
+GROUP BY listings
+ORDER BY ContentCount DESC
+
+
 --10.Find each year and the average numbers of content release in India on netflix. 
 --return top 5 year with highest avg content release!
+
+select top 5 YEAR(CAST(date_added AS DATE)) [year],
+COUNT(*) [content release], 
+cast(COUNT(*) as float)/(select COUNT(*) from netflix_titles where country like '%India%') * 100 [avg content release] 
+from netflix_titles
+where country like '%India%'
+group by YEAR(CAST(date_added AS DATE))
+order by [avg content release] desc
+
+
 --11. List all movies that are documentaries
+
+
+
+
 --12. Find all content without a director
 --13. Find how many movies actor 'Salman Khan' appeared in last 10 years!
 --14. Find the top 10 actors who have appeared in the highest number of movies produced in India.
