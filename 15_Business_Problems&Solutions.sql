@@ -127,13 +127,66 @@ order by [avg content release] desc
 
 --11. List all movies that are documentaries
 
-
+select * 
+from netflix_titles
+where type = 'movie' and listed_in like '%documentaries%'
 
 
 --12. Find all content without a director
+
+select * from netflix_titles
+where director IS NULL
+
+
 --13. Find how many movies actor 'Salman Khan' appeared in last 10 years!
+
+--according to release_year
+select * 
+from netflix_titles
+where type = 'movie' and cast like '%salman khan%' and release_year >= YEAR(GETDATE()) - 10
+
+--OR according to date_added
+
+select * 
+from netflix_titles
+where type = 'movie' and cast like '%salman khan%' and
+date_added >= DATEADD(YEAR, -10, GETDATE())
+
+
 --14. Find the top 10 actors who have appeared in the highest number of movies produced in India.
-/*15.
-Categorize the content based on the presence of the keywords 'kill' and 'violence' in 
+
+WITH CastSplit AS (
+    SELECT
+        show_id, -- Assuming each row has a unique Show_ID
+        LTRIM(RTRIM(value)) AS actors -- Trim extra spaces from split values
+    FROM 
+        netflix_titles
+        CROSS APPLY STRING_SPLIT(cast, ',') -- Split country column by commas
+		where country like '%India%'
+)
+SELECT TOP 10 
+    actors, 
+    COUNT(*) AS ContentCount
+FROM CastSplit
+GROUP BY actors
+order by ContentCount desc
+
+
+/*15. Categorize the content based on the presence of the keywords 'kill' and 'violence' in 
 the description field. Label content containing these keywords as 'Bad' and all other 
-content as 'Good'. Count how many items fall into each category.
+content as 'Good'. Count how many items fall into each category.*/
+
+with new_col as
+(
+select *,
+case
+	when 
+		description like '%kill%' OR
+		description like '%violence%' then 'bad_content'
+		else 'good_content'
+	end category
+from netflix_titles
+)
+select category, COUNT(*) [content count]
+from new_col
+group by category
