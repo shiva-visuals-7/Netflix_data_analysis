@@ -27,12 +27,37 @@ where ranking=1
 
 --3. List all movies released in a specific year (e.g., 2020)
 
-
+select * 
+from netflix_titles 
+where type = 'Movie' and release_year = 2020
 
 
 
 --4. Find the top 5 countries with the most content on Netflix
+
+WITH CountrySplit AS (
+    SELECT
+        show_id, -- Assuming each row has a unique Show_ID
+        LTRIM(RTRIM(value)) AS Countries -- Trim extra spaces from split values
+    FROM 
+        netflix_titles
+        CROSS APPLY STRING_SPLIT(Country, ',') -- Split country column by commas
+)
+SELECT TOP 5 
+    Countries, 
+    COUNT(*) AS ContentCount
+FROM CountrySplit
+GROUP BY Countries
+ORDER BY ContentCount DESC;
+
+
+
 --5. Identify the longest movie
+
+
+
+
+
 --6. Find content added in the last 5 years
 --7. Find all the movies/TV shows by director 'Rajiv Chilaka'!
 --8. List all TV shows with more than 5 seasons
