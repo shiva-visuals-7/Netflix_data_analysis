@@ -190,3 +190,5 @@ from netflix_titles
 select category, COUNT(*) [content count]
 from new_col
 group by category
+
+
